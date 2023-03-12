@@ -59,6 +59,9 @@ dependencies {
     // ML kit
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:18.0.2")
 
+    // Firebase
+    implementation ("com.google.firebase:firebase-firestore-ktx:24.4.4")
+
     // Compose
     implementation("androidx.activity:activity-compose:1.6.1")
     implementation(platform("androidx.compose:compose-bom:2022.10.00"))
