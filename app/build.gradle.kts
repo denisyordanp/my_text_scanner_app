@@ -55,7 +55,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.8.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    
+
+    // ML kit
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:18.0.2")
+
     // Compose
     implementation("androidx.activity:activity-compose:1.6.1")
     implementation(platform("androidx.compose:compose-bom:2022.10.00"))
