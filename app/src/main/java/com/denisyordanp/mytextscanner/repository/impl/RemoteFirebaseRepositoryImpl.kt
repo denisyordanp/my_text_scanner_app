@@ -21,7 +21,7 @@ class RemoteFirebaseRepositoryImpl(
             fireStore.collection(COLLECTION_NAME)
                 .add(textData)
                 .addOnSuccessListener {
-                    trySend(UploadStatus.Success)
+                    trySend(UploadStatus.Success(text))
                     close()
                 }
                 .addOnFailureListener {

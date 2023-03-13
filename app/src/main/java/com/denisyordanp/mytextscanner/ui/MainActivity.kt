@@ -12,23 +12,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
-import com.denisyordanp.mytextscanner.ui.components.MainContent
-import com.denisyordanp.mytextscanner.ui.components.ScanButton
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.denisyordanp.mytextscanner.ui.screens.EditTextScreen
+import com.denisyordanp.mytextscanner.ui.screens.MainScreen
+import com.denisyordanp.mytextscanner.ui.screens.MyTextScannerRoutes
 import com.denisyordanp.mytextscanner.ui.theme.MyTextScannerTheme
 import com.denisyordanp.mytextscanner.utils.TIME_FORMAT
-import com.denisyordanp.mytextscanner.utils.UploadStatus
 import com.denisyordanp.mytextscanner.utils.ViewModelFactory
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -64,41 +59,33 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyTextScannerTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = MyTextScannerRoutes.MAIN_SCREEN
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        when (val uploadState = viewModel.uploadStatus.collectAsState().value) {
-                            is UploadStatus.Error -> when (uploadState) {
-                                is UploadStatus.Error.Image -> MainContent(message = "No text found") {
-                                    startCapturingImage()
-                                }
-
-                                is UploadStatus.Error.Upload -> MainContent(
-                                    message = "Sorry there's something wrong, please try again: \n" +
-                                            "${uploadState.error.message}"
-                                ) {
-                                    startCapturingImage()
-                                }
-                            }
-
-                            is UploadStatus.Loading -> CircularProgressIndicator(
-                                modifier = Modifier
-                                    .size(30.dp)
-                            )
-
-                            is UploadStatus.Idle -> ScanButton {
+                    composable(MyTextScannerRoutes.MAIN_SCREEN) {
+                        MainScreen(
+                            viewModel = viewModel,
+                            onScanClicked = {
                                 startCapturingImage()
+                            },
+                            toEditScreen = {
+                                navController.navigate(MyTextScannerRoutes.goToEditScreen(it))
                             }
+                        )
+                    }
 
-                            is UploadStatus.Success -> {
-                                // Go to edit screen
-                            }
+                    composable(
+                        MyTextScannerRoutes.EDIT_SCREEN,
+                        arguments = listOf(navArgument(MyTextScannerRoutes.CONVERTED_TEXT) {
+                            type = NavType.StringType
+                        })
+                    ) { backStackEntry ->
+                        val convertedText =
+                            backStackEntry.arguments?.getString(MyTextScannerRoutes.CONVERTED_TEXT)
+                        convertedText?.let {
+                            EditTextScreen(it)
                         }
                     }
                 }
