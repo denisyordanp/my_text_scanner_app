@@ -8,21 +8,28 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
+import com.denisyordanp.mytextscanner.ui.components.MainContent
 import com.denisyordanp.mytextscanner.ui.components.ScanButton
 import com.denisyordanp.mytextscanner.ui.theme.MyTextScannerTheme
 import com.denisyordanp.mytextscanner.utils.TIME_FORMAT
+import com.denisyordanp.mytextscanner.utils.UploadStatus
+import com.denisyordanp.mytextscanner.utils.ViewModelFactory
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -33,6 +40,11 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+
+    private val factory = ViewModelFactory()
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
+    }
 
     private var mImageUri: String = ""
 
@@ -61,12 +73,32 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-//                        MainContent(
-//                            message = "Sorry there's something wrong, please try again:",
-//                            onClicked = {}
-//                        )
-                        ScanButton {
-                            startCapturingImage()
+                        when (val uploadState = viewModel.uploadStatus.collectAsState().value) {
+                            is UploadStatus.Error -> when (uploadState) {
+                                is UploadStatus.Error.Image -> MainContent(message = "No text found") {
+                                    startCapturingImage()
+                                }
+
+                                is UploadStatus.Error.Upload -> MainContent(
+                                    message = "Sorry there's something wrong, please try again: \n" +
+                                            "${uploadState.error.message}"
+                                ) {
+                                    startCapturingImage()
+                                }
+                            }
+
+                            is UploadStatus.Loading -> CircularProgressIndicator(
+                                modifier = Modifier
+                                    .size(30.dp)
+                            )
+
+                            is UploadStatus.Idle -> ScanButton {
+                                startCapturingImage()
+                            }
+
+                            is UploadStatus.Success -> {
+                                // Go to edit screen
+                            }
                         }
                     }
                 }
@@ -84,9 +116,9 @@ class MainActivity : ComponentActivity() {
 
     private fun createFileUri(file: File): Uri {
         return FileProvider.getUriForFile(
-                this,
-                this.applicationContext.packageName + ".provider",
-                file
+            this,
+            this.applicationContext.packageName + ".provider",
+            file
         )
     }
 
@@ -99,10 +131,10 @@ class MainActivity : ComponentActivity() {
 
     private fun createEmptyFile(): File {
         val timeStamp: String =
-                SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
+            SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
         val imageFileName = "$timeStamp.jpg"
         val storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES
+            Environment.DIRECTORY_PICTURES
         )
         mImageUri = storageDir.absolutePath + "/" + imageFileName
         return File(mImageUri)
@@ -113,18 +145,24 @@ class MainActivity : ComponentActivity() {
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
         recognizer.process(image)
-                .addOnSuccessListener { texts ->
-                    processTextRecognitionResult(texts)
-                }
-                .addOnFailureListener { e ->
-                    e.printStackTrace()
-                }
+            .addOnSuccessListener { texts ->
+                processTextRecognitionResult(texts)
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+            }
     }
 
     private fun processTextRecognitionResult(texts: Text) {
         val blocks = texts.textBlocks
-        blocks.forEach {
-            Log.d("TESTING", it.text)
+        if (blocks.size == 0) {
+            viewModel.errorImageProcessing()
+            return
         }
+
+        val convertedText = blocks.joinToString(separator = "\n") {
+            it.text
+        }
+        viewModel.uploadText(convertedText)
     }
 }
