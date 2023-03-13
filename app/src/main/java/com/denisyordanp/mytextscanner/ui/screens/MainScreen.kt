@@ -31,7 +31,9 @@ fun MainScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            when (val uploadState = viewModel.uploadStatus.collectAsState().value) {
+            val uploadState = viewModel.uploadStatus.collectAsState().value
+
+            when (uploadState) {
                 is UploadStatus.Error -> when (uploadState) {
                     is UploadStatus.Error.Image -> MainContent(
                         message = "No text found",
@@ -56,6 +58,7 @@ fun MainScreen(
 
                 is UploadStatus.Success -> {
                     toEditScreen(uploadState.convertedText)
+                    viewModel.resetToInitialState()
                 }
             }
         }

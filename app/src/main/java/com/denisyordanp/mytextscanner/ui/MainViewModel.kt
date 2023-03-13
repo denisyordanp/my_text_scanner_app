@@ -29,4 +29,10 @@ class MainViewModel(
             _uploadStatus.value = UploadStatus.Error.Image
         }
     }
+
+    fun resetToInitialState() {
+        viewModelScope.launch {
+            _uploadStatus.value = UploadStatus.Idle
+        }
+    }
 }
