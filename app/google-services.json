@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "100674515206",
+    "project_id": "sawit-pro-58e2a",
+    "storage_bucket": "sawit-pro-58e2a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100674515206:android:41687a26f3870cdb546e87",
+        "android_client_info": {
+          "package_name": "com.denisyordanp.mytextscanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100674515206-gk3umn1g09k6u72uftbe78rfeb4ipoef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0NAzcR_ELielaoRbg-ihVVwrFHZiUeSE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100674515206-gk3umn1g09k6u72uftbe78rfeb4ipoef.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
