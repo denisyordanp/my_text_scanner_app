@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">My Text Scanner</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="sorry_there_s_something_wrong_please_try_again">Sorry there\'s something wrong, please try again: %s\n</string>
+    <string name="no_text_found">No text found</string>
+    <string name="edit_text">Edit text</string>
 </resources>
