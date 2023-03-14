@@ -10,7 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.denisyordanp.mytextscanner.R
 import com.denisyordanp.mytextscanner.ui.MainViewModel
 import com.denisyordanp.mytextscanner.ui.components.MainContent
 import com.denisyordanp.mytextscanner.ui.components.ScanButton
@@ -31,18 +33,21 @@ fun MainScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            val uploadState = viewModel.uploadStatus.collectAsState().value
-
-            when (uploadState) {
+            when (val uploadState = viewModel.uploadStatus.collectAsState().value) {
                 is UploadStatus.Error -> when (uploadState) {
-                    is UploadStatus.Error.Image -> MainContent(
-                        message = "No text found",
-                        onClicked = onScanClicked
-                    )
+                    is UploadStatus.Error.Image -> {
+                        val message = uploadState.error?.let {
+                            stringResource(R.string.sorry_there_s_something_wrong_please_try_again, uploadState.error.message ?: "")
+                        } ?: stringResource(R.string.no_text_found)
+
+                        MainContent(
+                            message = message,
+                            onClicked = onScanClicked
+                        )
+                    }
 
                     is UploadStatus.Error.Upload -> MainContent(
-                        message = "Sorry there's something wrong, please try again: \n" +
-                                "${uploadState.error.message}",
+                        message = stringResource(R.string.sorry_there_s_something_wrong_please_try_again, uploadState.error.message ?: ""),
                         onClicked = onScanClicked
                     )
                 }

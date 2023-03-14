@@ -6,6 +6,6 @@ sealed class UploadStatus {
     data class Success(val convertedText: String) : UploadStatus()
     sealed class Error : UploadStatus() {
         data class Upload(val error: Exception) : Error()
-        object Image : Error()
+        data class Image(val error: Exception?) : Error()
     }
 }

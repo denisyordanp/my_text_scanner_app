@@ -137,6 +137,7 @@ class MainActivity : ComponentActivity() {
             }
             .addOnFailureListener { e ->
                 e.printStackTrace()
+                viewModel.errorImageProcessing(e)
             }
     }
 

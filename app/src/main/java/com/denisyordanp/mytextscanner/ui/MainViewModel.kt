@@ -24,9 +24,9 @@ class MainViewModel(
         }
     }
 
-    fun errorImageProcessing() {
+    fun errorImageProcessing(error: Exception? = null) {
         viewModelScope.launch {
-            _uploadStatus.value = UploadStatus.Error.Image
+            _uploadStatus.value = UploadStatus.Error.Image(error)
         }
     }
 
