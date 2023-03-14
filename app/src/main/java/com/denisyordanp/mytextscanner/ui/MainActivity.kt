@@ -85,7 +85,12 @@ class MainActivity : ComponentActivity() {
                         val convertedText =
                             backStackEntry.arguments?.getString(MyTextScannerRoutes.CONVERTED_TEXT)
                         convertedText?.let {
-                            EditTextScreen(it)
+                            EditTextScreen(
+                                convertedText = it,
+                                onBackPressed = {
+                                    navController.navigateUp()
+                                }
+                            )
                         }
                     }
                 }
